@@ -4,7 +4,6 @@ import <TlsServer/camkes/TlsServer.camkes>;
 
 import "components/ChanMux/ChanMux.camkes";
 import "components/NwStack/network_stack.camkes";
-import "components/NwDriver/nic_driver.camkes";
 import "components/UART/Uart.camkes";
 import "components/Timer/Timer.camkes";
 import "components/TimerClient/TimerClient.camkes";
@@ -13,6 +12,10 @@ import "components/Tests/test_TlsServer.camkes";
 
 // For client IDs
 #include "config/SystemConfig.h"
+
+#include "NIC_ChanMux/NIC_ChanMux.camkes"
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
+
 
 assembly {
     composition {
@@ -49,11 +52,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,      to nwDriver.ChanMuxSignal_dataAvailable);
+        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,      to nwDriver.chanMux_event_hasData);
         connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.port_chanMux_ctrl,       to chanMux.port_nic_1_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.port_chanMux_data_read,  to chanMux.port_nic_1_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.port_chanMux_data_write, to chanMux.port_nic_1_data_write);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.chanMux_port_ctrl,       to chanMux.port_nic_1_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.chanMux_port_data_read,  to chanMux.port_nic_1_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.chanMux_port_data_write, to chanMux.port_nic_1_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -67,10 +70,10 @@ assembly {
 
         connection seL4NotificationNative   NwStackdataAvail3 (from timerClient.e_tick_nwstack_1, to nwStack.event_tick_or_data);
 
-        connection seL4NotificationNative   NwStackdataAvail1                (from nwDriver.event_nwstack_hasData, to nwStack.event_tick_or_data);
-        connection seL4RPCCall              NwStack_NwDriver                 (from nwStack.nic_driver,             to nwDriver.nic_driver);
-        connection seL4SharedData           NwDriver_NwStack_ReadConnection  (from nwDriver.port_nwStack_to,       to nwStack.port_nic_from);
-        connection seL4SharedData           NwDriver_NwStack_WriteConnection (from nwDriver.port_nwStack_from,     to nwStack.port_nic_to);
+        connection seL4NotificationNative   NwStackdataAvail1                (from nwDriver.nic_event_hasData, to nwStack.event_tick_or_data);
+        connection seL4RPCCall              NwStack_NwDriver                 (from nwStack.nic_driver,         to nwDriver.nic_rpc);
+        connection seL4SharedData           NwDriver_NwStack_ReadConnection  (from nwDriver.nic_port_to,       to nwStack.port_nic_from);
+        connection seL4SharedData           NwDriver_NwStack_WriteConnection (from nwDriver.nic_port_from,     to nwStack.port_nic_to);
 
         //----------------------------------------------------------------------
         // Network Stack App

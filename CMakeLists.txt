@@ -52,17 +52,10 @@ DeclareCAmkESComponent(NwStack
         seos_nw_lib
 )
 
-DeclareCAmkESComponent(NwDriver
-    SOURCES
-        components/NwDriver/src/nic_driver.c
-    C_FLAGS
-        -Wall -Werror
-        -DCFG_CHANMUX_CHANNEL_CRTL=CHANMUX_CHANNEL_NIC_1_CTRL
-        -DCFG_CHANMUX_CHANNEL_DATA=CHANMUX_CHANNEL_NIC_1_DATA
-    LIBS
-        seos_core_api
-        seos_libs
-        seos_nw_driver_tap_proxy_lib
+DeclareCAmkESComponent_NIC_ChanMux(
+    NwDriver
+    CHANMUX_CHANNEL_NIC_1_CTRL
+    CHANMUX_CHANNEL_NIC_1_DATA
 )
 
 DeclareCAmkESComponent(ChanMux
@@ -106,6 +99,5 @@ DeclareCAmkESComponent(Timer
         seos_libs
 )
 
-DeclareCAmkESRootserver(main.camkes)
-GenerateCAmkESRootServer()
+DeclareAndCreateCamkESSystem(main.camkes)
 GenerateSimulateScript()
