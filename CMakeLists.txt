@@ -10,7 +10,6 @@ seos_use_libs(
     SEOS_CRYPTO
     SEOS_NETWORK_DRIVER_TAP_PROXY
     SEOS_TLS_WITH_RPC_CLIENT
-    SEOS_TLS_IMPL_MBEDTLS
 )
 
 # Set path to src, inc, camkes folders of TlsServer
