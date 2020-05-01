@@ -56,20 +56,14 @@ DeclareCAmkESComponent(NwStack
 
 DeclareCAmkESComponent_NIC_ChanMux(
     NwDriver
-    CHANMUX_CHANNEL_NIC_1_CTRL
-    CHANMUX_CHANNEL_NIC_1_DATA
+    CHANMUX_CHANNEL_NIC_CTRL
+    CHANMUX_CHANNEL_NIC_DATA
 )
 
-DeclareCAmkESComponent(ChanMux
-    SOURCES
-        components/ChanMux/src/ChanMux.c
-    C_FLAGS
-        -Wall -Werror
-    LIBS
-        system_config
-        seos_core_api
-        seos_libs
-        chanmux_server
+DeclareCAmkESComponent_ChanMux(
+    ChanMux
+    components/ChanMux/ChanMux_config.c
+    system_config
 )
 
 DeclareCAmkESComponent(UartDrv

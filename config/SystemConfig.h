@@ -46,18 +46,17 @@
 //-----------------------------------------------------------------------------
 // ChanMUX
 //-----------------------------------------------------------------------------
-#define CHANMUX_CHANNEL_UNUSED_0        0
-#define CHANMUX_CHANNEL_UNUSED_1        1
-#define CHANMUX_CHANNEL_UNUSED_2        2
-#define CHANMUX_CHANNEL_UNUSED_3        3
-#define CHANMUX_CHANNEL_NIC_1_CTRL      4
-#define CHANMUX_CHANNEL_NIC_1_DATA      5
-#define CHANMUX_CHANNEL_UNUSED_6        6
-#define CHANMUX_CHANNEL_UNUSED_7        7
-#define CHANMUX_CHANNEL_UNUSED_8        8
-#define CHANMUX_NUM_CHANNELS            9
 
-#define SENDER_NIC_1                    101
+#define CHANMUX_CHANNEL_NIC_CTRL      4
+#define CHANMUX_CHANNEL_NIC_DATA      5
+
+
+//-----------------------------------------------------------------------------
+// ChanMUX clients
+//-----------------------------------------------------------------------------
+
+#define CHANMUX_ID_NIC        101
+
 
 //-----------------------------------------------------------------------------
 // Network Stack

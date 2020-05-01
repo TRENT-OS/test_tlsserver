@@ -2,7 +2,6 @@ import <std_connector.camkes>;
 
 import <TlsServer/camkes/TlsServer.camkes>;
 
-import "components/ChanMux/ChanMux.camkes";
 import "components/NwStack/network_stack.camkes";
 import "components/UART/Uart.camkes";
 import "components/Timer/Timer.camkes";
@@ -16,14 +15,13 @@ import "components/Tests/test_TlsServer.camkes";
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 
+#define CHANMUX_COMPONENT_NAME  ChanMux
+#define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
+#include "ChanMux/ChanMux.camkes"
+
 
 assembly {
     composition {
-        //----------------------------------------------------------------------
-        // MUX
-        //----------------------------------------------------------------------
-        component ChanMux           chanMux;
-
         //----------------------------------------------------------------------
         // UART
         //----------------------------------------------------------------------
@@ -31,9 +29,14 @@ assembly {
         component  UartDrv          uartDrv;
 
         connection seL4HardwareMMIO uart_memio          (from uartDrv.uartRegBase,    to uartDev.uartRegBase);
-        connection seL4RPCCall      uart_chanmux        (from uartDrv.Output,         to chanMux.ChanMuxOut);
-        connection seL4RPCCall      chanmux_uart        (from chanMux.Output,         to uartDrv.UartDrv);
-        connection seL4SharedData   uart_dataConnection (from chanMux.outputDataPort, to uartDrv.inputDataPort);
+
+        //----------------------------------------------------------------------
+        // MUX
+        //----------------------------------------------------------------------
+        DECLARE_AND_CONNECT_INSTANCE_CHANMUX(
+            ChanMux, chanMux,
+            uartDrv.UartDrv, uartDrv.inputDataPort,
+            uartDrv.Output)
 
         //----------------------------------------------------------------------
         // Timer
@@ -52,11 +55,11 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.event_nic_1_hasData,      to nwDriver.chanMux_event_hasData);
-        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver.ChanMuxRpc,              to chanMux.ChanMux_driver);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.chanMux_port_ctrl,       to chanMux.port_nic_1_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.chanMux_port_data_read,  to chanMux.port_nic_1_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.chanMux_port_data_write, to chanMux.port_nic_1_data_write);
+        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.nic_event_hasData,        to nwDriver.chanMux_event_hasData);
+        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver.chanMux_rpc,             to chanMux.chanMux_rpc);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.chanMux_port_ctrl,       to chanMux.nic_port_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.chanMux_port_data_read,  to chanMux.nic_port_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.chanMux_port_data_write, to chanMux.nic_port_data_write);
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -109,7 +112,7 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        nwDriver.ChanMuxRpc_attributes      = SENDER_NIC_1;
+        nwDriver.chanMux_rpc_attributes      = CHANMUX_ID_NIC;
 
         // When assigning IDs for each app, we need to ensure that they have the
         // SAME ID on both interfaces; the TlsServer IF will be used to init
