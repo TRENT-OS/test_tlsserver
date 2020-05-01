@@ -12,6 +12,11 @@ seos_use_libs(
     SEOS_TLS_WITH_RPC_CLIENT
 )
 
+project(system_config C)
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE config)
+
+
 # Set path to src, inc, camkes folders of TlsServer
 SET(COMPONENTS_TLSSERVER_DIR "${SEOS_COMPONENTS_DIR}/TlsServer")
 
@@ -20,13 +25,13 @@ include("${COMPONENTS_TLSSERVER_DIR}/CMakeLists.txt")
 
 DeclareCAmkESComponent(test_TlsServer
     INCLUDES
-        config
         ${COMPONENTS_TLSSERVER_DIR}/inc
     SOURCES
         components/Tests/src/test_TlsServer.c
     C_FLAGS
         -Wall -Werror
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_crypto
@@ -34,8 +39,6 @@ DeclareCAmkESComponent(test_TlsServer
 )
 
 DeclareCAmkESComponent(NwStack
-    INCLUDES
-        config
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
@@ -45,6 +48,7 @@ DeclareCAmkESComponent(NwStack
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
     LIBS
+        system_config
         seos_core_api
         seos_libs
         seos_nw_lib
@@ -57,13 +61,12 @@ DeclareCAmkESComponent_NIC_ChanMux(
 )
 
 DeclareCAmkESComponent(ChanMux
-    INCLUDES
-        config
     SOURCES
         components/ChanMux/src/ChanMux.c
     C_FLAGS
         -Wall -Werror
     LIBS
+        system_config
         seos_core_api
         seos_libs
         chanmux_server
