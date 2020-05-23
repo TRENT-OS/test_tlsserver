@@ -17,15 +17,13 @@ add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE config)
 
 
-# Set path to src, inc, camkes folders of TlsServer
-SET(COMPONENTS_TLSSERVER_DIR "${OS_COMPONENTS_DIR}/TlsServer")
-
-# Include TlsServer CMakeList
-include("${COMPONENTS_TLSSERVER_DIR}/CMakeLists.txt")
+DeclareCAmkESComponent_TlsServer(TlsServer
+    LIBS
+        seos_crypto
+        seos_network_api
+)
 
 DeclareCAmkESComponent(test_TlsServer
-    INCLUDES
-        ${COMPONENTS_TLSSERVER_DIR}/inc
     SOURCES
         components/Tests/src/test_TlsServer.c
     C_FLAGS
@@ -35,7 +33,7 @@ DeclareCAmkESComponent(test_TlsServer
         seos_core_api
         seos_libs
         seos_crypto
-        seos_tls_with_rpc_client
+        TlsServer_client
 )
 
 DeclareCAmkESComponent(NwStack
