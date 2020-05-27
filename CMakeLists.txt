@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.7.2)
 seos_set_config_file(config/SystemConfig.h)
 
 seos_use_libs(
-    SEOS_LIBS
-    SEOS_CHANMUX
-    SEOS_LIBS_LOGGER
-    SEOS_NW_STACK
-    SEOS_CRYPTO
-    SEOS_NETWORK_DRIVER_TAP_PROXY
-    SEOS_TLS_WITH_RPC_CLIENT
+    OS_LIBS
+    OS_CHANMUX
+    OS_LIBS_LOGGER
+    OS_NW_STACK
+    OS_CRYPTO
+    OS_NETWORK_DRIVER_TAP_PROXY
+    OS_TLS_WITH_RPC_CLIENT
 )
 
 project(system_config C)
@@ -18,7 +18,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE config)
 
 
 # Set path to src, inc, camkes folders of TlsServer
-SET(COMPONENTS_TLSSERVER_DIR "${SEOS_COMPONENTS_DIR}/TlsServer")
+SET(COMPONENTS_TLSSERVER_DIR "${OS_COMPONENTS_DIR}/TlsServer")
 
 # Include TlsServer CMakeList
 include("${COMPONENTS_TLSSERVER_DIR}/CMakeLists.txt")
@@ -43,7 +43,7 @@ DeclareCAmkESComponent(NwStack
         components/NwStack/src/network_stack.c
     C_FLAGS
         -Wall -Werror
-        -DSEOS_NWSTACK_AS_CLIENT
+        -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_1_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
         -DCFG_ETH_SUBNET_MASK=ETH_1_SUBNET_MASK
