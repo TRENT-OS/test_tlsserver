@@ -6,9 +6,7 @@ os_use_libs(
     OS_LIBS
     OS_CHANMUX
     OS_LIBS_LOGGER
-    OS_NW_STACK
     OS_CRYPTO
-    OS_NETWORK_DRIVER_TAP_PROXY
     OS_TLS_WITH_RPC_CLIENT
 )
 
@@ -20,7 +18,7 @@ target_include_directories(${PROJECT_NAME} INTERFACE config)
 DeclareCAmkESComponent_TlsServer(TlsServer
     LIBS
         seos_crypto
-        seos_network_api
+        os_network_api
 )
 
 DeclareCAmkESComponent(test_TlsServer
@@ -49,7 +47,7 @@ DeclareCAmkESComponent(NwStack
         system_config
         seos_core_api
         seos_libs
-        seos_nw_lib
+        os_network_lib
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
