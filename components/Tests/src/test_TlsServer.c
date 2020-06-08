@@ -12,6 +12,12 @@
 #include <camkes.h>
 #include <string.h>
 
+static OS_Tls_Config_t remoteCfg =
+{
+    .mode = OS_Tls_MODE_CLIENT,
+    .dataport = OS_DATAPORT_ASSIGN(TlsLibDataport)
+};
+
 // Private functions -----------------------------------------------------------
 
 static void
@@ -19,11 +25,6 @@ test_TlsServer_connect_pos(
     void)
 {
     OS_Tls_Handle_t hTls;
-    OS_Tls_Config_t remoteCfg =
-    {
-        .mode = OS_Tls_MODE_CLIENT,
-        .config.client.dataport = TlsLibDataport,
-    };
 
     TEST_START();
 
