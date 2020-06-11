@@ -16,22 +16,30 @@ os_use_libs(
     OS_TLS_WITH_RPC_CLIENT
 )
 
+
+#-------------------------------------------------------------------------------
 project(system_config C)
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE config)
 
 
-DeclareCAmkESComponent_TlsServer(TlsServer
+#-------------------------------------------------------------------------------
+project(test_tlsserver C)
+
+DeclareCAmkESComponent_TlsServer(
+    TlsServer
     LIBS
         os_crypto
         os_network_api
 )
 
-DeclareCAmkESComponent(test_TlsServer
+DeclareCAmkESComponent(
+    test_TlsServer
     SOURCES
         components/Tests/src/test_TlsServer.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
     LIBS
         system_config
         os_core_api
@@ -40,11 +48,13 @@ DeclareCAmkESComponent(test_TlsServer
         TlsServer_client
 )
 
-DeclareCAmkESComponent(NwStack
+DeclareCAmkESComponent(
+    NwStack
     SOURCES
         components/NwStack/src/network_stack.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         -DOS_NWSTACK_AS_CLIENT
         -DCFG_ETH_ADDR=ETH_1_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_1_GATEWAY_ADDR
@@ -72,20 +82,24 @@ DeclareCAmkESComponent_UART(
     UART
 )
 
-DeclareCAmkESComponent(TimerClient
+DeclareCAmkESComponent(
+    TimerClient
     SOURCES
         components/TimerClient/src/Timer_Client.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
     LIBS
         os_libs
 )
 
-DeclareCAmkESComponent(Timer
+DeclareCAmkESComponent(
+    Timer
     SOURCES
         components/Timer/src/timer.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
     LIBS
         os_libs
 )
