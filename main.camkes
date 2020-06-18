@@ -1,5 +1,7 @@
 import <std_connector.camkes>;
 
+import <if_OS_EntropySource.camkes>;
+
 import <TlsServer/camkes/TlsServer.camkes>;
 
 import "components/NwStack/network_stack.camkes";
@@ -21,6 +23,8 @@ DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 #define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
 
+#include "EntropySource/camkes/EntropySource.camkes"
+DECLARE_COMPONENT_EntropySource(EntropySource)
 
 assembly {
     composition {
@@ -86,6 +90,12 @@ assembly {
         connection seL4Notification     NwAppInitDone        (from nwStack.event_network_init_done,     to tlsServer.event_network_stack_init_done);
         connection seL4RPCCall          NwApp_nwStack        (from tlsServer.network_stack_rpc,         to nwStack.network_stack_rpc);
         connection seL4SharedData       NwApp_dataConnection (from tlsServer.NwAppDataPort,             to nwStack.port_app_io);
+
+        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
+            EntropySource,
+            entropySource,
+            tlsServer.entropySource_rpc,
+            tlsServer.entropySource_dp)
 
         //----------------------------------------------------------------------
         // Connecting TEST_TLS to TlsServer
