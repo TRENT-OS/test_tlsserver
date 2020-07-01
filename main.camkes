@@ -56,11 +56,9 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.nic_event_hasData,        to nwDriver.chanMux_event_hasData);
-        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver.chanMux_rpc,             to chanMux.chanMux_rpc);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.chanMux_port_ctrl,       to chanMux.nic_port_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.chanMux_port_data_read,  to chanMux.nic_port_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.chanMux_port_data_write, to chanMux.nic_port_data_write);
+        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -119,7 +117,7 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        nwDriver.chanMux_rpc_attributes      = CHANMUX_ID_NIC;
+        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
 
         // When assigning IDs for each app, we need to ensure that they have the
         // SAME ID on both interfaces; the TlsServer IF will be used to init
