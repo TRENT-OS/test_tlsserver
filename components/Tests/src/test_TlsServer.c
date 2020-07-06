@@ -70,7 +70,7 @@ test_TlsServer_disconnect_pos(
     TEST_START();
 
     // We come here after the successful execution of connect_pos(), so the socket
-    // is connected and we shoud be able to disconnect.
+    // is connected and we should be able to disconnect.
     TEST_SUCCESS(TlsServer_disconnect());
 
     TEST_FINISH();
