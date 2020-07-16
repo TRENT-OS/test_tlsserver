@@ -19,9 +19,10 @@ DECLARE_COMPONENT_UART(UART)
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 
-#define CHANMUX_COMPONENT_NAME  ChanMux
-#define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
+ChanMux_DEFINE_COMPONENT(ChanMux,
+        nwDriver, ctrl,
+        nwDriver, data)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
@@ -37,7 +38,7 @@ assembly {
         //----------------------------------------------------------------------
         // MUX
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_CHANMUX_TO_UART(ChanMux, chanMux, uartDrv)
+        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux, uartDrv)
 
         //----------------------------------------------------------------------
         // Timer
@@ -56,9 +57,9 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
+        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
+        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
+        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -117,7 +118,7 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
+        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
 
         // When assigning IDs for each app, we need to ensure that they have the
         // SAME ID on both interfaces; the TlsServer IF will be used to init
