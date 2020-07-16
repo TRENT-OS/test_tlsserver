@@ -13,9 +13,9 @@ component test_TlsServer {
     control;
 
     // TLS RPC
-    uses        if_TlsServer                TlsServer;
+    uses        if_TlsServer                tlsServer_rpc;
 
     // TLS API
     uses        if_OS_Tls                   TlsLibServer;
-    dataport    Buf                         TlsLibDataport;
+    dataport    Buf                         tlsLib_dp;
 }
