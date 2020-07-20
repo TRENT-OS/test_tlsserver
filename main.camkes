@@ -93,8 +93,8 @@ assembly {
             nwStack.network_stack_rpc,
             nwStack.port_app_io,
             nwStack.event_network_init_done,
-            unitTest.TlsLibServer,
-            unitTest.tlsLib_dp,
+            unitTest.tls_rpc,
+            unitTest.tls_port,
             unitTest.tlsServer_rpc)
     }
 
@@ -117,7 +117,7 @@ assembly {
 
         // Assign same badge to both interfaces
         ASSIGN_CLIENT_BADGE_TlsServer(
-            unitTest, tlsServer_rpc, TlsLibServer, TLSSERVER_CLIENT_ID_1)
+            unitTest, tlsServer_rpc, tls_rpc, TLSSERVER_CLIENT_ID_1)
 
         // Setup sempahore
         INIT_SEMAPHORES_TlsServer(tlsServer)

@@ -15,7 +15,7 @@
 static OS_Tls_Config_t remoteCfg =
 {
     .mode = OS_Tls_MODE_CLIENT,
-    .dataport = OS_DATAPORT_ASSIGN(tlsLib_dp)
+    .dataport = OS_DATAPORT_ASSIGN(tls_port)
 };
 
 // Private functions -----------------------------------------------------------
