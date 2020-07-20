@@ -119,9 +119,6 @@ assembly {
         ASSIGN_CLIENT_BADGE_TlsServer(
             unitTest, tlsServer_rpc, tls_rpc, TLSSERVER_CLIENT_ID_1)
 
-        // Setup sempahore
-        INIT_SEMAPHORES_TlsServer(tlsServer)
-
         CONFIGURE_INSTANCE_TlsServer(
             tlsServer,
             "-----BEGIN CERTIFICATE-----\r\n" \
