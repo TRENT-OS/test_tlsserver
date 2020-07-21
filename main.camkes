@@ -88,8 +88,8 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_TlsServer(
             TlsServer,
             tlsServer,
-            entropySource.entropySource_rpc,
-            entropySource.entropySource_dp,
+            entropySource.entropy_rpc,
+            entropySource.entropy_port,
             nwStack.network_stack_rpc,
             nwStack.port_app_io,
             nwStack.event_network_init_done,
