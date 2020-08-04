@@ -32,6 +32,7 @@ DeclareCAmkESComponent(
         os_core_api
         os_libs
         os_crypto
+        os_tls
         TlsServer_client
 )
 
