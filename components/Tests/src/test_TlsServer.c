@@ -12,6 +12,9 @@
 #include <camkes.h>
 #include <string.h>
 
+static const if_TlsServer_t tlsServer =
+    IF_TLSSERVER_ASSIGN(
+        tlsServer_rpc);
 static OS_Tls_Config_t remoteCfg =
 {
     .mode = OS_Tls_MODE_CLIENT,
@@ -36,7 +39,7 @@ test_TlsServer_connect_pos(
      *
      * NOTE: We DO NOT disconnect, as that is part of a follow-up test..
      */
-    TEST_SUCCESS(TlsServer_connect(TLS_HOST_IP, TLS_HOST_PORT));
+    TEST_SUCCESS(TlsServer_connect(&tlsServer, TLS_HOST_IP, TLS_HOST_PORT));
     TEST_SUCCESS(OS_Tls_init(&hTls, &remoteCfg));
     TEST_SUCCESS(OS_Tls_handshake(hTls));
     TEST_SUCCESS(OS_Tls_free(hTls));
@@ -57,10 +60,10 @@ test_TlsServer_connect_neg(
      */
 
     // Invalid IP
-    TEST_INVAL_PARAM(TlsServer_connect("", TLS_HOST_PORT));
+    TEST_INVAL_PARAM(TlsServer_connect(&tlsServer, "", TLS_HOST_PORT));
 
     // Invalid port
-    TEST_INVAL_PARAM(TlsServer_connect(TLS_HOST_IP, 0));
+    TEST_INVAL_PARAM(TlsServer_connect(&tlsServer, TLS_HOST_IP, 0));
 
     TEST_FINISH();
 }
@@ -73,7 +76,7 @@ test_TlsServer_disconnect_pos(
 
     // We come here after the successful execution of connect_pos(), so the socket
     // is connected and we should be able to disconnect.
-    TEST_SUCCESS(TlsServer_disconnect());
+    TEST_SUCCESS(TlsServer_disconnect(&tlsServer));
 
     TEST_FINISH();
 }
@@ -85,7 +88,7 @@ test_TlsServer_disconnect_neg(
     TEST_START();
 
     // Now the socket should be disconnected, so trying it again should fail.
-    TEST_INVAL_STATE(TlsServer_disconnect());
+    TEST_INVAL_STATE(TlsServer_disconnect(&tlsServer));
 
     TEST_FINISH();
 }
