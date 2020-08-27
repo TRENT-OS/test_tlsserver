@@ -15,7 +15,7 @@
 static const if_TlsServer_t tlsServer =
     IF_TLSSERVER_ASSIGN(
         tlsServer_rpc);
-static OS_Tls_Config_t remoteCfg =
+static const OS_Tls_Config_t remoteCfg =
 {
     .mode = OS_Tls_MODE_CLIENT,
     .rpc = IF_OS_TLS_ASSIGN(
