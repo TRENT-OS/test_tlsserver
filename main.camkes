@@ -10,9 +10,6 @@ import "components/Tests/test_TlsServer.camkes";
 // For client IDs
 #include "config/SystemConfig.h"
 
-#include "UART/Uart.camkes"
-DECLARE_COMPONENT_UART(UART)
-
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
@@ -33,15 +30,9 @@ DECLARE_COMPONENT_TlsServer(TlsServer)
 assembly {
     composition {
         //----------------------------------------------------------------------
-        // UART
+        // ChanMux + UART
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_UART(
-            UART, uartDrv)
-
-        //----------------------------------------------------------------------
-        // MUX
-        //----------------------------------------------------------------------
-        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux, uartDrv)
+        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux)
 
         //----------------------------------------------------------------------
         // Ticker
@@ -102,11 +93,6 @@ assembly {
     }
 
     configuration {
-        CONFIGURE_INSTANCE_UART(
-            uartDrv,
-            CFG_CHANMUX_DEFAULT_UART_PHYS_ADDR,
-            CFG_CHANMUX_DEFAULT_UART_INTR)
-
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
