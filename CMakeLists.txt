@@ -1,5 +1,5 @@
 #
-# Test TLS Server
+# Test TLS server
 #
 # Copyright (C) 2020, Hensoldt Cyber GmbH
 #
