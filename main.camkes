@@ -22,7 +22,7 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
 DECLARE_COMPONENT_EntropySource(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
-DECLARE_COMPONENT_TimeServer(TimeServer)
+TimeServer_COMPONENT_DECLARE(TimeServer)
 
 #include "TlsServer/camkes/TlsServer.camkes"
 DECLARE_COMPONENT_TlsServer(TlsServer)
@@ -42,11 +42,13 @@ assembly {
         //----------------------------------------------------------------------
         // TimeServer
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_TimeServer(
-            TimeServer,
+        component TimeServer timeServer;
+
+        TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
             ticker.timeServer_rpc,  ticker.timeServer_notify,
-            nwStack.timeServer_rpc, nwStack.timeServer_notify)
+            nwStack.timeServer_rpc, nwStack.timeServer_notify
+        )
 
         //----------------------------------------------------------------------
         // Network Driver
@@ -97,10 +99,12 @@ assembly {
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
 
-        ASSIGN_CLIENT_BADGE_TimeServer(ticker,
-            timeServer_rpc, TIMESERVER_TK_ID)
-        ASSIGN_CLIENT_BADGE_TimeServer(nwStack,
-            timeServer_rpc, TIMESERVER_NS_ID)
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            ticker.timeServer_rpc, TIMESERVER_TK_ID
+        )
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            nwStack.timeServer_rpc, TIMESERVER_NS_ID
+        )
 
         // Assign same badge to both interfaces
         ASSIGN_CLIENT_BADGE_TlsServer(
