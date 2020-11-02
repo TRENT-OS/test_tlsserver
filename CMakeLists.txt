@@ -13,7 +13,7 @@ os_set_config_file(
 #-------------------------------------------------------------------------------
 project(test_tlsserver C)
 
-DeclareCAmkESComponent_TlsServer(
+TlsServer_DeclareCAmkESComponent(
     TlsServer
     LIBS
         os_crypto
