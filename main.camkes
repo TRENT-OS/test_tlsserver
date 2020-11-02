@@ -99,11 +99,9 @@ assembly {
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
 
-        TimeServer_CLIENT_ASSIGN_BADGE(
-            ticker.timeServer_rpc, TIMESERVER_TK_ID
-        )
-        TimeServer_CLIENT_ASSIGN_BADGE(
-            nwStack.timeServer_rpc, TIMESERVER_NS_ID
+        TimeServer_CLIENT_ASSIGN_BADGES(
+            ticker.timeServer_rpc,
+            nwStack.timeServer_rpc
         )
 
         // Assign same badge to both interfaces
