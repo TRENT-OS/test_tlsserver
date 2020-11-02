@@ -29,8 +29,6 @@ static void
 test_TlsServer_connect_pos(
     void)
 {
-    OS_Tls_Handle_t hTls;
-
     TEST_START();
 
     /*
@@ -40,9 +38,6 @@ test_TlsServer_connect_pos(
      * NOTE: We DO NOT disconnect, as that is part of a follow-up test..
      */
     TEST_SUCCESS(TlsServer_connect(&tlsServer, TLS_HOST_IP, TLS_HOST_PORT));
-    TEST_SUCCESS(OS_Tls_init(&hTls, &remoteCfg));
-    TEST_SUCCESS(OS_Tls_handshake(hTls));
-    TEST_SUCCESS(OS_Tls_free(hTls));
 
     TEST_FINISH();
 }
@@ -64,6 +59,34 @@ test_TlsServer_connect_neg(
 
     // Invalid port
     TEST_INVAL_PARAM(TlsServer_connect(&tlsServer, TLS_HOST_IP, 0));
+
+    TEST_FINISH();
+}
+
+static void
+test_TlsServer_do_tls(
+    void)
+{
+    const char request[] = "HELLOOOOOO?!";
+    unsigned char buffer[1024];
+    size_t len = sizeof(request);
+    OS_Tls_Handle_t hTls;
+
+    TEST_START();
+
+    TEST_SUCCESS(OS_Tls_init(&hTls, &remoteCfg));
+    TEST_SUCCESS(OS_Tls_handshake(hTls));
+
+    TEST_SUCCESS(OS_Tls_write(hTls, request, &len));
+    TEST_TRUE(len == sizeof(request));
+
+    len = sizeof(request);
+    memset(buffer, 0, sizeof(buffer));
+    TEST_SUCCESS(OS_Tls_read(hTls, buffer, &len));
+    TEST_TRUE(len == sizeof(request));
+    TEST_TRUE(!memcmp(buffer, request, len));
+
+    TEST_SUCCESS(OS_Tls_free(hTls));
 
     TEST_FINISH();
 }
@@ -101,6 +124,8 @@ int run()
 
     test_TlsServer_connect_neg();
     test_TlsServer_connect_pos();
+
+    test_TlsServer_do_tls();
 
     test_TlsServer_disconnect_pos();
     test_TlsServer_disconnect_neg();
