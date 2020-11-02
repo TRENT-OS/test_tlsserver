@@ -103,9 +103,9 @@ assembly {
             ticker.timeServer_rpc,
             nwStack.timeServer_rpc
         )
-
-        TlsServer_CLIENT_ASSIGN_BADGE(
-            unitTest.tlsServer_rpc, TLSSERVER_CLIENT_ID_1)
+        TlsServer_CLIENT_ASSIGN_BADGES(
+            unitTest.tlsServer_rpc
+        )
 
         TlsServer_INSTANCE_CONFIGURE(
             tlsServer,
