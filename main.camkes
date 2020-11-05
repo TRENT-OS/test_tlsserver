@@ -19,7 +19,7 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
         nwDriver, data)
 
 #include "EntropySource/camkes/EntropySource.camkes"
-DECLARE_COMPONENT_EntropySource(EntropySource)
+EntropySource_COMPONENT_DECLARE(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
 TimeServer_COMPONENT_DECLARE(TimeServer)
