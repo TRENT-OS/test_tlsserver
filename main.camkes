@@ -25,7 +25,7 @@ DECLARE_COMPONENT_EntropySource(EntropySource)
 TimeServer_COMPONENT_DECLARE(TimeServer)
 
 #include "TlsServer/camkes/TlsServer.camkes"
-DECLARE_COMPONENT_TlsServer(TlsServer)
+TlsServer_COMPONENT_DECLARE(TlsServer)
 
 assembly {
     composition {
@@ -81,17 +81,17 @@ assembly {
         //----------------------------------------------------------------------
         component EntropySource     entropySource;
         component test_TlsServer    unitTest;
+        component TlsServer         tlsServer;
 
-        DECLARE_AND_CONNECT_INSTANCE_TlsServer(
-            TlsServer,
+        TlsServer_INSTANCE_CONNECT(
             tlsServer,
-            entropySource.entropy_rpc,
-            entropySource.entropy_port,
-            nwStack.network_stack_rpc,
-            nwStack.port_app_io,
-            nwStack.event_network_init_done,
-            unitTest.tlsServer_rpc,
-            unitTest.tlsServer_port)
+            entropySource.entropy_rpc, entropySource.entropy_port,
+            nwStack.network_stack_rpc, nwStack.port_app_io, nwStack.event_network_init_done
+        )
+        TlsServer_INSTANCE_CONNECT_CLIENT(
+            tlsServer,
+            unitTest.tlsServer_rpc, unitTest.tlsServer_port
+        )
     }
 
     configuration {
@@ -104,11 +104,10 @@ assembly {
             nwStack.timeServer_rpc
         )
 
-        // Assign same badge to both interfaces
-        ASSIGN_CLIENT_BADGE_TlsServer(
-            unitTest, tlsServer_rpc, TLSSERVER_CLIENT_ID_1)
+        TlsServer_CLIENT_ASSIGN_BADGE(
+            unitTest.tlsServer_rpc, TLSSERVER_CLIENT_ID_1)
 
-        CONFIGURE_INSTANCE_TlsServer(
+        TlsServer_INSTANCE_CONFIGURE(
             tlsServer,
             "-----BEGIN CERTIFICATE-----\r\n" \
             "MIIDuzCCAqOgAwIBAgIUIlFP3QticKvSug25KJUVB4mqdlswDQYJKoZIhvcNAQEL\r\n" \
