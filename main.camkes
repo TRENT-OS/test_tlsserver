@@ -11,7 +11,7 @@ import "components/Tests/test_TlsServer.camkes";
 #include "config/SystemConfig.h"
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DECLARE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
+NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "ChanMux/ChanMux_UART.camkes"
 ChanMux_UART_COMPONENT_DEFINE(
@@ -21,13 +21,13 @@ ChanMux_UART_COMPONENT_DEFINE(
 )
 
 #include "EntropySource/camkes/EntropySource.camkes"
-EntropySource_COMPONENT_DECLARE(EntropySource)
+EntropySource_COMPONENT_DEFINE(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
-TimeServer_COMPONENT_DECLARE(TimeServer)
+TimeServer_COMPONENT_DEFINE(TimeServer)
 
 #include "TlsServer/camkes/TlsServer.camkes"
-TlsServer_COMPONENT_DECLARE(TlsServer)
+TlsServer_COMPONENT_DEFINE(TlsServer)
 
 assembly {
     composition {
