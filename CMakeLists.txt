@@ -61,8 +61,8 @@ DeclareCAmkESComponent_NIC_ChanMux(
     CHANMUX_CHANNEL_NIC_DATA
 )
 
-DeclareCAmkESComponents_ChanMux_UART(
-    ChanMux
+ChanMux_UART_DeclareCAmkESComponents(
+    ChanMux_UART
     components/ChanMux/ChanMux_config.c
     system_config
 )

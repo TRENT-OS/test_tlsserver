@@ -13,10 +13,12 @@ import "components/Tests/test_TlsServer.camkes";
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
-#include "ChanMux/ChanMux.camkes"
-ChanMux_DEFINE_COMPONENT(ChanMux,
-        nwDriver, ctrl,
-        nwDriver, data)
+#include "ChanMux/ChanMux_UART.camkes"
+ChanMux_UART_COMPONENT_DEFINE(
+    ChanMux_UART,
+    nwDriver, ctrl,
+    nwDriver, data
+)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DECLARE(EntropySource)
@@ -32,7 +34,13 @@ assembly {
         //----------------------------------------------------------------------
         // ChanMux + UART
         //----------------------------------------------------------------------
-        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux)
+        component ChanMux_UART chanMux_UART;
+        component UART_CHANMUX uart;
+
+        ChanMux_UART_INSTANCE_CONNECT(
+            chanMux_UART, 
+            uart
+        )
 
         //----------------------------------------------------------------------
         // Ticker
@@ -55,9 +63,10 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
-        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
+        ChanMux_UART_INSTANCE_CONNECT_CLIENT(
+            chanMux_UART,
+            nwDriver, data, ctrl
+        )
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -95,10 +104,9 @@ assembly {
     }
 
     configuration {
-        // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
-        // naming scheme is <component>.<interface>_attributes = <badge ID>
-        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
-
+        ChanMux_UART_CLIENT_ASSIGN_BADGES(
+            nwDriver.chanMux_Rpc
+        )
         TimeServer_CLIENT_ASSIGN_BADGES(
             ticker.timeServer_rpc,
             nwStack.timeServer_rpc

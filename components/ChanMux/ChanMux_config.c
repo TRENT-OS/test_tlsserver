@@ -82,8 +82,8 @@ static const ChanMux_ChannelCtx_t channelCtx[] = {
         nwDriver_ctrl_portWrite,
         nwDriver_data_portRead,
         nwDriver_data_portWrite,
-        nwDriver_ctrl_DataAvailable_emit,
-        nwDriver_data_DataAvailable_emit),
+        nwDriver_ctrl_eventHasData_emit,
+        nwDriver_data_eventHasData_emit),
 };
 
 
