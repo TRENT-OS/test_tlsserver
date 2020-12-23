@@ -2,7 +2,7 @@
  * Copyright (C) 2020, Hensoldt Cyber GmbH
  */
 
-#include "LibMacros/Test.h"
+#include "lib_macros/Test.h"
 #include "TestConfig.h"
 
 #include "OS_Tls.h"

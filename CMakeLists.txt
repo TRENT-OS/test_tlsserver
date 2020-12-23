@@ -30,7 +30,7 @@ DeclareCAmkESComponent(
     LIBS
         system_config
         os_core_api
-        os_libs
+        lib_macros
         os_crypto
         os_tls
         TlsServer_client
@@ -49,7 +49,7 @@ DeclareCAmkESComponent(
     LIBS
         system_config
         os_core_api
-        os_libs
+        lib_debug
         os_network_lib
         TimeServer_client
 )
@@ -75,7 +75,7 @@ DeclareCAmkESComponent(
         -Werror
     LIBS
         os_core_api
-        os_libs
+        lib_debug
 )
 
 TimeServer_DeclareCAmkESComponent(
