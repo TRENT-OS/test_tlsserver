@@ -26,6 +26,8 @@ static const if_OS_Timer_t timer =
         timeServer_rpc,
         timeServer_notify);
 
+static bool initSuccessfullyCompleted = false;
+
 //------------------------------------------------------------------------------
 // network stack's PicTCP OS adaption layer calls this.
 uint64_t
@@ -44,9 +46,8 @@ Timer_getTimeMs(void)
     return ms;
 }
 
-
 //------------------------------------------------------------------------------
-int run()
+void post_init()
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
@@ -54,7 +55,6 @@ int run()
     // are allocated at runtime
     OS_NetworkStack_CamkesConfig_t camkes_config =
     {
-        .notify_init_done        = event_network_init_done_emit,
         .wait_loop_event         = event_tick_or_data_wait,
 
         .internal =
@@ -86,11 +86,6 @@ int run()
                 .get_mac        = nic_driver_get_mac_address,
             }
         },
-
-        .app =
-        {
-            .notify_init_done   = event_network_init_done_emit,
-        }
     };
 
     static OS_NetworkStack_SocketResources_t socks = {
@@ -108,9 +103,27 @@ int run()
 
     camkes_config.internal.number_of_sockets = 1;
     camkes_config.internal.sockets = &socks;
+    OS_Error_t ret = OS_NetworkStack_init(&camkes_config, &config);
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_init() failed, error %d",
+                        get_instance_name(), ret);
+        return;
+    }
+    initSuccessfullyCompleted = true;
+}
 
+//------------------------------------------------------------------------------
+int run()
+{
+    if (!initSuccessfullyCompleted)
+    {
+        Debug_LOG_FATAL("[NwStack '%s'] initialization failed",
+                        get_instance_name());
+        return -1;
+    }
 
-    OS_Error_t ret = OS_NetworkStack_run(&camkes_config, &config);
+    OS_Error_t ret = OS_NetworkStack_run();
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_run() failed, error %d",

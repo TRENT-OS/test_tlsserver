@@ -95,7 +95,7 @@ assembly {
         TlsServer_INSTANCE_CONNECT(
             tlsServer,
             entropySource.entropy_rpc, entropySource.entropy_port,
-            nwStack.network_stack_rpc, nwStack.port_app_io, nwStack.event_network_init_done
+            nwStack.network_stack_rpc, nwStack.port_app_io
         )
         TlsServer_INSTANCE_CONNECT_CLIENT(
             tlsServer,
