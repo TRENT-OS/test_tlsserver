@@ -38,7 +38,7 @@ assembly {
         component UART_CHANMUX uart;
 
         ChanMux_UART_INSTANCE_CONNECT(
-            chanMux_UART, 
+            chanMux_UART,
             uart
         )
 
