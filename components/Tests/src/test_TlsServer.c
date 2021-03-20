@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2020, Hensoldt Cyber GmbH
+ * TLS Tests
+ *
+ * Copyright (C) 2020, HENSOLDT Cyber GmbH
  */
 
 #include "lib_macros/Test.h"

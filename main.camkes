@@ -1,3 +1,9 @@
+/*
+ * Test TLS Server
+ *
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
+ */
+
 import <std_connector.camkes>;
 
 import <if_OS_Entropy.camkes>;

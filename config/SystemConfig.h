@@ -1,8 +1,7 @@
 /*
- * Copyright (C) 2019-2020, Hensoldt Cyber GmbH
- *
  * Library configurations
  *
+ * Copyright (C) 2019-2020, HENSOLDT Cyber GmbH
  */
 
 #pragma once

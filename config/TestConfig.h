@@ -1,9 +1,9 @@
-/**
- * Copyright (C) 2020, Hensoldt Cyber GmbH
- *
+/*
  * TlsServer test configuration
  *
+ * Copyright (C) 2020, HENSOLDT Cyber GmbH
  */
+
 #pragma once
 
 // IP address of jenkins host so we can reach our own TLS Server we set up there

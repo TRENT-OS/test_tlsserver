@@ -1,8 +1,7 @@
 /*
- *  TLS Test Interface
+ * TLS Test Interface
  *
- *  Copyright (C) 2019-2020, Hensoldt Cyber GmbH
- *
+ * Copyright (C) 2019-2020, HENSOLDT Cyber GmbH
  */
 
 import <TlsServer/camkes/if_TlsServer.camkes>;
