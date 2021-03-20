@@ -7,16 +7,6 @@
 #include "config/SystemConfig.h"
 import <std_connector.camkes>;
 
-#include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
-
-#include "ChanMux/ChanMux_UART.camkes"
-ChanMux_UART_COMPONENT_DEFINE(
-    ChanMux_UART,
-    nwDriver, ctrl,
-    nwDriver, data
-)
-
 import <if_OS_Entropy.camkes>;
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DEFINE(EntropySource)
@@ -37,16 +27,10 @@ NwStack_COMPONENT_DEFINE(
 import "components/Ticker/Ticker.camkes";
 import "components/Tests/test_TlsServer.camkes";
 
+#include "plat_nic.camkes"
 
 assembly {
     composition {
-        //----------------------------------------------------------------------
-        // ChanMux + UART
-        //----------------------------------------------------------------------
-        component ChanMux_UART chanMux_UART;
-        component UART_CHANMUX uart;
-        ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart)
-
         //----------------------------------------------------------------------
         // Ticker
         //----------------------------------------------------------------------
@@ -66,12 +50,7 @@ assembly {
         //----------------------------------------------------------------------
         // Network Driver
         //----------------------------------------------------------------------
-        component NwDriver nwDriver;
-
-        ChanMux_UART_INSTANCE_CONNECT_CLIENT(
-            chanMux_UART,
-            nwDriver, data, ctrl
-        )
+        TLS_SERVER_TEST_NIC_INSTANCE(nwDriver)
 
         //----------------------------------------------------------------------
         // Network Stack
@@ -126,13 +105,13 @@ assembly {
     }
 
     configuration {
-        ChanMux_UART_CLIENT_ASSIGN_BADGES(
-            nwDriver.chanMux_Rpc
-        )
         TimeServer_CLIENT_ASSIGN_BADGES(
             ticker.timeServer_rpc,
             nwStack.timeServer_rpc
         )
+
+        TLS_SERVER_TEST_NIC_CONFIG(nwDriver)
+
         TlsServer_CLIENT_ASSIGN_BADGES(
             unitTest.tlsServer_rpc
         )

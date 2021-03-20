@@ -1,7 +1,7 @@
 #
 # Test TLS Server
 #
-# Copyright (C) 2020, HENSOLDT Cyber GmbH
+# Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
 #
 
 cmake_minimum_required(VERSION 3.7.2)
@@ -12,6 +12,8 @@ os_set_config_file(
 
 #-------------------------------------------------------------------------------
 project(test_tlsserver C)
+
+include("plat/${PLATFORM}/plat_nic.cmake")
 
 TlsServer_DeclareCAmkESComponent(
     TlsServer
@@ -52,18 +54,6 @@ DeclareCAmkESComponent(
         lib_debug
         os_network_lib
         TimeServer_client
-)
-
-NIC_ChanMux_DeclareCAmkESComponent(
-    NwDriver
-    CHANMUX_CHANNEL_NIC_CTRL
-    CHANMUX_CHANNEL_NIC_DATA
-)
-
-ChanMux_UART_DeclareCAmkESComponents(
-    ChanMux_UART
-    components/ChanMux/ChanMux_config.c
-    system_config
 )
 
 DeclareCAmkESComponent(
