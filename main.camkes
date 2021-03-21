@@ -4,17 +4,8 @@
  * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
-import <std_connector.camkes>;
-
-import <if_OS_Entropy.camkes>;
-
-import "components/NwStack/network_stack.camkes";
-import "components/Ticker/Ticker.camkes";
-
-import "components/Tests/test_TlsServer.camkes";
-
-// For client IDs
 #include "config/SystemConfig.h"
+import <std_connector.camkes>;
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
@@ -26,6 +17,7 @@ ChanMux_UART_COMPONENT_DEFINE(
     nwDriver, data
 )
 
+import <if_OS_Entropy.camkes>;
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DEFINE(EntropySource)
 
@@ -35,6 +27,11 @@ TimeServer_COMPONENT_DEFINE(TimeServer)
 #include "TlsServer/camkes/TlsServer.camkes"
 TlsServer_COMPONENT_DEFINE(TlsServer)
 
+import "components/NwStack/network_stack.camkes";
+import "components/Ticker/Ticker.camkes";
+import "components/Tests/test_TlsServer.camkes";
+
+
 assembly {
     composition {
         //----------------------------------------------------------------------
@@ -42,16 +39,12 @@ assembly {
         //----------------------------------------------------------------------
         component ChanMux_UART chanMux_UART;
         component UART_CHANMUX uart;
-
-        ChanMux_UART_INSTANCE_CONNECT(
-            chanMux_UART,
-            uart
-        )
+        ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart)
 
         //----------------------------------------------------------------------
         // Ticker
         //----------------------------------------------------------------------
-        component  Ticker ticker;
+        component Ticker ticker;
 
         //----------------------------------------------------------------------
         // TimeServer
@@ -67,7 +60,7 @@ assembly {
         //----------------------------------------------------------------------
         // Network Driver
         //----------------------------------------------------------------------
-        component  NwDriver         nwDriver;
+        component NwDriver nwDriver;
 
         ChanMux_UART_INSTANCE_CONNECT_CLIENT(
             chanMux_UART,
@@ -77,32 +70,53 @@ assembly {
         //----------------------------------------------------------------------
         // Network Stack
         //----------------------------------------------------------------------
-        component  NwStack                  nwStack;
+        component NwStack nwStack;
 
-        connection seL4NotificationNative   NwStackdataAvail2 (from nwStack.event_internal, to nwStack.event_tick_or_data);
-        connection seL4Notification         NwStackEventsRxd1 (from nwStack.e_write,        to nwStack.c_write);
-        connection seL4Notification         NwStackEventsRxd2 (from nwStack.e_read,         to nwStack.c_read);
-        connection seL4Notification         NwStackEventsRxd3 (from nwStack.e_conn,         to nwStack.c_conn);
+        connection seL4NotificationNative conn_event_nwStack_dataAvail(
+            from nwStack.event_internal,
+            to   nwStack.event_tick_or_data);
 
-        connection seL4NotificationNative   NwStack_tick      (from ticker.e_timeout_nwstacktick, to nwStack.event_tick_or_data);
+        connection seL4Notification conn_event_nwStack_EventsRxd1(
+            from nwStack.e_write,
+            to   nwStack.c_write);
+
+        connection seL4Notification conn_event_nwStack_EventsRxd2(
+            from nwStack.e_read,
+            to   nwStack.c_read);
+
+        connection seL4Notification conn_event_nwStack_EventsRxd3(
+            from nwStack.e_conn,
+            to   nwStack.c_conn);
+
+        connection seL4NotificationNative conn_event_ticker_nwStack_tick(
+            from ticker.e_timeout_nwstacktick,
+            to   nwStack.event_tick_or_data);
 
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
             nwDriver,
-            nwStack.nic_driver,  nwStack.port_nic_to, nwStack.port_nic_from, nwStack.event_tick_or_data
+            nwStack.nic_driver,
+            nwStack.port_nic_to,
+            nwStack.port_nic_from,
+            nwStack.event_tick_or_data
         )
 
         //----------------------------------------------------------------------
-        // TlsServer
+        // TlsServer + Entropy Source
         //----------------------------------------------------------------------
-        component EntropySource     entropySource;
-        component test_TlsServer    unitTest;
         component TlsServer         tlsServer;
+        component EntropySource     entropySource;
 
         TlsServer_INSTANCE_CONNECT(
             tlsServer,
             entropySource.entropy_rpc, entropySource.entropy_port,
             nwStack.network_stack_rpc, nwStack.port_app_io
         )
+
+        //----------------------------------------------------------------------
+        // TLS Server UnitTest App
+        //----------------------------------------------------------------------
+        component test_TlsServer    unitTest;
+
         TlsServer_INSTANCE_CONNECT_CLIENT(
             tlsServer,
             unitTest.tlsServer_rpc, unitTest.tlsServer_port
