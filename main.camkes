@@ -95,8 +95,8 @@ assembly {
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
             nwDriver,
             nwStack.nic_driver,
-            nwStack.port_nic_to,
-            nwStack.port_nic_from,
+            nwStack.nic_to_port,
+            nwStack.nic_from_port,
             nwStack.event_tick_or_data
         )
 
@@ -109,7 +109,7 @@ assembly {
         TlsServer_INSTANCE_CONNECT(
             tlsServer,
             entropySource.entropy_rpc, entropySource.entropy_port,
-            nwStack.network_stack_rpc, nwStack.port_app_io
+            nwStack.networkStack_rpc, nwStack.appIo_port
         )
 
         //----------------------------------------------------------------------
