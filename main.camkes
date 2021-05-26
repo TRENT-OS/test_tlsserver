@@ -72,11 +72,11 @@ assembly {
         // Neither the network stack nor the socket interface are currently a
         // standard interface. We could use this
         //
-        //   NwStack_INSTANCE_CONNECT_SOCKET(
-        //       nwStack,
-        //       1,
-        //       tlsServer.networkStack_rpc,
-        //       tlsServer.networkStack_port)
+        // NwStack_INSTANCE_CONNECT_CLIENT(
+        //      nwStack,
+        //      tlsServer,
+        //      networkStack_rpc,
+        //      networkStack_port)
         //
         //   EntropySource_INSTANCE_CONNECT_CLIENT(
         //       entropySource,
