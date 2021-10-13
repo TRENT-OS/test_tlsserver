@@ -1,7 +1,7 @@
 /*
- * Library configurations
+ * System libraries configurations
  *
- * Copyright (C) 2019-2020, HENSOLDT Cyber GmbH
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
 #pragma once
@@ -53,6 +53,7 @@
 #define ETH_1_GATEWAY_ADDR          "10.0.0.1"
 #define ETH_1_SUBNET_MASK           "255.255.255.0"
 
+#define OS_NETWORK_MAXIMUM_SOCKET_NO 4
 
 //-----------------------------------------------------------------------------
 // Network Driver

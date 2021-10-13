@@ -4,10 +4,13 @@
  * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
-#include "config/SystemConfig.h"
-import <std_connector.camkes>;
 
+import <std_connector.camkes>;
 import <if_OS_Entropy.camkes>;
+
+#include "config/SystemConfig.h"
+#include "config/TestConfig.h"
+
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DEFINE(EntropySource)
 
@@ -17,128 +20,87 @@ TimeServer_COMPONENT_DEFINE(TimeServer)
 #include "TlsServer/camkes/TlsServer.camkes"
 TlsServer_COMPONENT_DEFINE(TlsServer)
 
-#include "os_network_stack/network_stack.camkes"
-NwStack_COMPONENT_DEFINE(
-    NwStack,
+#include "NetworkStack_PicoTcp/camkes/NetworkStack_PicoTcp.camkes"
+NetworkStack_PicoTcp_COMPONENT_DEFINE(
+    NetworkStack_PicoTcp,
     NIC_DRIVER_RINGBUFFER_SIZE,
-    1,
-    NwStack_NO_ADDITIONAL_INTERFACES)
+    NetworkStack_PicoTcp_NO_ADDITIONAL_INTERFACES
+)
 
-import "components/Ticker/Ticker.camkes";
-import "components/Tests/test_TlsServer.camkes";
+
+#include "components/Tests/test_TlsServer.camkes"
 
 #include "plat_nic.camkes"
 
 assembly {
     composition {
         //----------------------------------------------------------------------
-        // Ticker
+        // Components used in application
         //----------------------------------------------------------------------
-        component Ticker ticker;
+        component TimeServer              timeServer;
+        TLS_SERVER_TEST_NIC_INSTANCE(nwDriver)
+        component EntropySource           entropySource;
+        component NetworkStack_PicoTcp    nwStack;
+        component TlsServer               tlsServer;
+        component test_TlsServer          unitTest;
+
 
         //----------------------------------------------------------------------
-        // TimeServer
+        // Establish Connections
         //----------------------------------------------------------------------
-        component TimeServer timeServer;
 
         TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
-            ticker.timeServer_rpc,  ticker.timeServer_notify,
-            nwStack.timeServer_rpc, nwStack.timeServer_notify
+            // platform specific components, macro will add a comma(s) if any
+            TLS_SERVER_TEST_NIC_CONNECTION_TIMESERVER(nwDriver)
+            nwStack.timeServer_rpc, nwStack.timeServer_notify)
+
+        EntropySource_INSTANCE_CONNECT_CLIENT(
+            entropySource,
+            tlsServer.entropy_rpc , tlsServer.entropy_port
         )
 
-        //----------------------------------------------------------------------
-        // Network Driver
-        //----------------------------------------------------------------------
-        TLS_SERVER_TEST_NIC_INSTANCE(nwDriver)
-
-        //----------------------------------------------------------------------
-        // Network Stack
-        //----------------------------------------------------------------------
-        component NwStack nwStack;
-
-        NwStack_INSTANCE_CONNECT(
+        NetworkStack_PicoTcp_INSTANCE_CONNECT(
             nwStack,
-            ticker.e_timeout_nwstacktick,
             nwDriver
         )
 
-        //----------------------------------------------------------------------
-        // TlsServer + Entropy Source
-        //----------------------------------------------------------------------
-        component TlsServer         tlsServer;
-        component EntropySource     entropySource;
-
-        // Neither the network stack nor the socket interface are currently a
-        // standard interface. We could use this
-        //
-        // NwStack_INSTANCE_CONNECT_CLIENT(
-        //      nwStack,
-        //      tlsServer,
-        //      networkStack_rpc,
-        //      networkStack_port)
-        //
-        //   EntropySource_INSTANCE_CONNECT_CLIENT(
-        //       entropySource,
-        //       tlsServer.entropy_rpc,
-        //       tlsServer.entropy_port
-        //
-        // which uses knowledge about the internals of the TlsServer. It seems
-        // better to use the connection helper macro from the TlsServer here
-        // instead and use internals from our network stack socket interface
-        // and if_OS_Entropy.
-        TlsServer_INSTANCE_CONNECT(
-            tlsServer,
-            entropySource.entropy_rpc, entropySource.entropy_port,
-            nwStack.networkStack_rpc, nwStack.socket_1_port
+        NetworkStack_PicoTcp_INSTANCE_CONNECT_CLIENTS(
+            nwStack,
+            tlsServer, networkStack
         )
 
-        //----------------------------------------------------------------------
-        // TLS Server UnitTest App
-        //----------------------------------------------------------------------
-        component test_TlsServer    unitTest;
-
-        TlsServer_INSTANCE_CONNECT_CLIENT(
+        TlsServer_INSTANCE_CONNECT_CLIENTS(
             tlsServer,
-            unitTest.tlsServer_rpc, unitTest.tlsServer_port
+            unitTest, tls
         )
     }
 
     configuration {
+
         TimeServer_CLIENT_ASSIGN_BADGES(
-            ticker.timeServer_rpc,
+            // platform specific components, macro will add a comma(s) if any
+            TLS_SERVER_TEST_NIC_TIMESERVER_CLIENTS(nwDriver)
             nwStack.timeServer_rpc
         )
+        
+        NetworkStack_PicoTcp_CLIENT_ASSIGN_BADGES(
+            tlsServer, networkStack
+        )
 
+        NetworkStack_PicoTcp_INSTANCE_CONFIGURE_CLIENTS(
+            nwStack,
+            4
+        )
+        
         TLS_SERVER_TEST_NIC_CONFIG(nwDriver)
 
         TlsServer_CLIENT_ASSIGN_BADGES(
-            unitTest.tlsServer_rpc
+            unitTest, tls
         )
 
         TlsServer_INSTANCE_CONFIGURE(
             tlsServer,
-            "-----BEGIN CERTIFICATE-----\r\n" \
-            "MIIDuzCCAqOgAwIBAgIUIlFP3QticKvSug25KJUVB4mqdlswDQYJKoZIhvcNAQEL\r\n" \
-            "BQAwbTELMAkGA1UEBhMCREUxEDAOBgNVBAgMB0JhdmFyaWExDzANBgNVBAcMBk11\r\n" \
-            "bmljaDEcMBoGA1UECgwTSGVuc29sZHQgQ3liZXIgR21iSDELMAkGA1UECwwCQ1Mx\r\n" \
-            "EDAOBgNVBAMMB0NJIFRlc3QwHhcNMjAwMjAzMDk1NTIyWhcNMzAwMTMxMDk1NTIy\r\n" \
-            "WjBtMQswCQYDVQQGEwJERTEQMA4GA1UECAwHQmF2YXJpYTEPMA0GA1UEBwwGTXVu\r\n" \
-            "aWNoMRwwGgYDVQQKDBNIZW5zb2xkdCBDeWJlciBHbWJIMQswCQYDVQQLDAJDUzEQ\r\n" \
-            "MA4GA1UEAwwHQ0kgVGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB\r\n" \
-            "AOkdsC9ckEQcFHQcQ3LOGFQB+2DQ+GbzHnE6UxjUD8HNJjkpGBgOvF/VLBl02wlu\r\n" \
-            "SzxACwZ3W9AhXfwJ972vSqYipj0RQyzDy2Nh5VtNPAUNQePwsIku4gpT5KNXkPt/\r\n" \
-            "zU1KdQKKyWx/VjmHUxidtAr5yttqOmhQ1fZ+buYMPO7ohaHSd+QX2Xv5W6QyA6wD\r\n" \
-            "YYNt0TE70dJ/Ww5luI1WYFwh9vNA/tiJTPVv5kRdx2/GsOSYON2esF6lIgPTKD1k\r\n" \
-            "E/zjAOWer3eMPS4rx59F/W0xxSvs71sOhMDPOUp2+82a8qDsOomwypWLz/vqcaxD\r\n" \
-            "91mEw0JorGcesqbO+qCM97ECAwEAAaNTMFEwHQYDVR0OBBYEFAA5WYY71fbT6U+l\r\n" \
-            "arVlDdmlbL4kMB8GA1UdIwQYMBaAFAA5WYY71fbT6U+larVlDdmlbL4kMA8GA1Ud\r\n" \
-            "EwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAJtNxhpoL3+UIx7utP/fwLuR\r\n" \
-            "Qb++yzC7GPtTysWztXfrm+8SA44o9MYjqJC6Xr0m67QVh7dmPmgCevPFpuAZJbea\r\n" \
-            "r+KkAnILyvoxl/p1RmEQXMNQ2/xd3p0FtVZ9FBQX0LdmvvFex1zB1I8ykHvKSu40\r\n" \
-            "jvPtrmG0XDDz1aNoLcRWfltVufAQP8QPbZ0xW79dKOqYdV4kV7Txd3pCRddLQQQj\r\n" \
-            "b72aCDbgGcHYm4Po+AgYWs4pYP62x7T44xdUYR1QuTb/3J5RMgIcvzngZdD64IFI\r\n" \
-            "geBoqyeoBvba6XuFFX7QIX6c39n/Is4aU98GsQHeGY9BCXx9PhNojDKfysyvPGI=\r\n" \
-            "-----END CERTIFICATE-----\r\n")
+            TLS_HOST_CERT)
     }
 }

@@ -1,10 +1,9 @@
 /*
  * ChanMux
  *
- * Copyright (C) 2019, HENSOLDT Cyber GmbH
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
-#include "SystemConfig.h"
 #include "ChanMux/ChanMux.h"
 #include "ChanMuxNic.h"
 #include <camkes.h>
@@ -37,10 +36,10 @@ resolveChannel(
         switch (chanNum_local)
         {
         //----------------------------------
-        case CHANMUX_CHANNEL_NIC_CTRL: // ToDo: use local channel number
+        case CHANMUX_CHANNEL_NIC_CTRL:
             return CHANMUX_CHANNEL_NIC_CTRL;
         //----------------------------------
-        case CHANMUX_CHANNEL_NIC_DATA: // ToDo: use local channel number
+        case CHANMUX_CHANNEL_NIC_DATA:
             return CHANMUX_CHANNEL_NIC_DATA;
         //----------------------------------
         default:
@@ -57,23 +56,24 @@ resolveChannel(
 
 
 //------------------------------------------------------------------------------
-
-static struct {
+static struct
+{
     uint8_t ctrl[128];
     // FIFO is big enough to store 1 minute of network "background" traffic.
     // Value found by manual testing, may differ in less noisy networks
     uint8_t data[1024 * PAGE_SIZE];
 } nic_fifo[1];
 
-static struct {
+static struct
+{
     ChanMux_Channel_t ctrl;
     ChanMux_Channel_t data;
 } nic_channel[1];
 
 
 //------------------------------------------------------------------------------
-static const ChanMux_ChannelCtx_t channelCtx[] = {
-
+static const ChanMux_ChannelCtx_t channelCtx[] =
+{
     CHANNELS_CTX_NIC_CTRL_DATA(
         CHANMUX_CHANNEL_NIC_CTRL,
         CHANMUX_CHANNEL_NIC_DATA,
@@ -83,7 +83,7 @@ static const ChanMux_ChannelCtx_t channelCtx[] = {
         nwDriver_data_portRead,
         nwDriver_data_portWrite,
         nwDriver_ctrl_eventHasData_emit,
-        nwDriver_data_eventHasData_emit),
+        nwDriver_data_eventHasData_emit)
 };
 
 

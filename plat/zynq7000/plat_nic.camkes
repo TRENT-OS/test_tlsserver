@@ -25,7 +25,12 @@ NIC_ChanMux_COMPONENT_DEFINE(
     component UART_CHANMUX uart; \
     ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart) \
     component NwDriver _nic_; \
-    ChanMux_INSTANCE_CONNECT_CLIENT(chanMux_UART, nwDriver, data, ctrl)
+    ChanMux_INSTANCE_CONNECT_CLIENT(chanMux_UART, _nic_, data, ctrl)
+
+#define  TLS_SERVER_TEST_NIC_CONNECTION_TIMESERVER(_nic_) /* none */
+
+
+#define  TLS_SERVER_TEST_NIC_TIMESERVER_CLIENTS(_nic_) /* none */
 
 
 #define TLS_SERVER_TEST_NIC_CONFIG(_nic_) \

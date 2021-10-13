@@ -1,14 +1,13 @@
 /*
  * TLS Test Interface
  *
- * Copyright (C) 2019-2020, HENSOLDT Cyber GmbH
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
-import <TlsServer/camkes/if_TlsServer.camkes>;
+#include "TlsServer/camkes/if_TlsServer.camkes"
 
 component test_TlsServer {
     control;
 
-    uses        if_TlsServer                tlsServer_rpc;
-    dataport    Buf                         tlsServer_port;
+    IF_TLSSERVER_USE(tls)
 }

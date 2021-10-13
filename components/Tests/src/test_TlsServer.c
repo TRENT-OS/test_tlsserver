@@ -1,7 +1,7 @@
 /*
- * TLS Tests
+ * Test System for TlsServer
  *
- * Copyright (C) 2020, HENSOLDT Cyber GmbH
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
  */
 
 #include "lib_macros/Test.h"
@@ -9,21 +9,19 @@
 
 #include "OS_Tls.h"
 
-#include "TlsServer.h"
+#include "TlsServer_client.h"
 
 #include <camkes.h>
 #include <string.h>
 
 static const if_TlsServer_t tlsServer =
-    IF_TLSSERVER_ASSIGN(
-        tlsServer_rpc);
+    IF_TLSSERVER_ASSIGN(tls);
 static const OS_Tls_Config_t remoteCfg =
 {
     .mode = OS_Tls_MODE_CLIENT,
-    .rpc = IF_OS_TLS_ASSIGN(
-        tlsServer_rpc,
-        tlsServer_port)
+    .rpc = IF_OS_TLS_ASSIGN(tls)
 };
+
 
 // Private functions -----------------------------------------------------------
 
@@ -31,6 +29,8 @@ static void
 test_TlsServer_connect_pos(
     void)
 {
+    OS_Error_t err;
+
     TEST_START();
 
     /*
@@ -39,7 +39,15 @@ test_TlsServer_connect_pos(
      *
      * NOTE: We DO NOT disconnect, as that is part of a follow-up test..
      */
-    TEST_SUCCESS(TlsServer_connect(&tlsServer, TLS_HOST_IP, TLS_HOST_PORT));
+
+    do
+    {
+        seL4_Yield();
+        err = TlsServer_connect(&tlsServer, TLS_HOST_IP, TLS_HOST_PORT);
+    }
+    while (err == OS_ERROR_WOULD_BLOCK);
+
+    TEST_TRUE(err == OS_SUCCESS);
 
     TEST_FINISH();
 }
@@ -73,18 +81,40 @@ test_TlsServer_do_tls(
     unsigned char buffer[1024];
     size_t len = sizeof(request);
     OS_Tls_Handle_t hTls;
+    OS_Error_t err;    
 
     TEST_START();
 
     TEST_SUCCESS(OS_Tls_init(&hTls, &remoteCfg));
-    TEST_SUCCESS(OS_Tls_handshake(hTls));
 
-    TEST_SUCCESS(OS_Tls_write(hTls, request, &len));
+
+    do
+    {
+        seL4_Yield();
+        err = OS_Tls_handshake(hTls);
+    }
+    while (err == OS_ERROR_WOULD_BLOCK);
+    TEST_TRUE(err == OS_SUCCESS);
+
+    do
+    {
+        seL4_Yield();
+        err = OS_Tls_write(hTls, request, &len);
+    }
+    while (err == OS_ERROR_WOULD_BLOCK);
+    TEST_TRUE(err == OS_SUCCESS);
     TEST_TRUE(len == sizeof(request));
 
     len = sizeof(request);
     memset(buffer, 0, sizeof(buffer));
-    TEST_SUCCESS(OS_Tls_read(hTls, buffer, &len));
+
+    do
+    {
+        seL4_Yield();
+        err = OS_Tls_read(hTls, buffer, &len);
+    }
+    while (err == OS_ERROR_WOULD_BLOCK);
+    TEST_TRUE(err == OS_SUCCESS);
     TEST_TRUE(len == sizeof(request));
     TEST_TRUE(!memcmp(buffer, request, len));
 
