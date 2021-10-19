@@ -19,7 +19,7 @@ TlsServer_DeclareCAmkESComponent(
     TlsServer
     LIBS
         os_crypto
-        os_network_api
+        os_socket_client
 )
 
 DeclareCAmkESComponent(
