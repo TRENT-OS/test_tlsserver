@@ -17,9 +17,6 @@ include("plat/${PLATFORM}/plat_nic.cmake")
 
 TlsServer_DeclareCAmkESComponent(
     TlsServer
-    LIBS
-        os_crypto
-        os_socket_client
 )
 
 DeclareCAmkESComponent(
